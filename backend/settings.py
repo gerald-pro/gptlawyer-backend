@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "gptlawyer",
     "graphene_django",
-    "corsheaders",
+    'graphql_jwt',
+    "corsheaders"
 ]
 
 MIDDLEWARE = [
@@ -137,6 +138,8 @@ AUTHENTICATION_BACKENDS = [
     'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+AUTH_USER_MODEL = 'gptlawyer.User'
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = ("http://localhost:5173",)

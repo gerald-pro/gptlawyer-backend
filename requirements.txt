@@ -1,3 +1,9 @@
 Django==5.0.6
 graphene==3.3
 graphene_django==3.2.1
+django-graphql-jwt==0.4.0
+graphene-file-upload==1.3.0
+django-cors-headers==4.4.0
+PyPDF2==3.0.1
+python-docx==1.1.2
+numpy==1.26.4

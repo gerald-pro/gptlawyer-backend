@@ -6,34 +6,81 @@ y define las siguientes consultas:
 """
 
 import graphene
-from gptlawyer import types, models
-from django.contrib.auth.models import User
+from gptlawyer import types
+from gptlawyer import models
+from graphql_jwt.decorators import login_required
+from django.db.models import Q
+
 
 class Query(graphene.ObjectType):
     current_user = graphene.Field(types.UserType, username=graphene.String())
-    users = graphene.List(types.UserType)
-    study_cases = graphene.List(types.StudyCaseType) 
+    all_users = graphene.List(types.UserType)
 
+    all_study_cases = graphene.List(
+        types.StudyCaseType, global_search=graphene.String()
+    )
+
+    study_case = graphene.Field(
+        types.StudyCaseType, id=graphene.Int(required=True)
+    )
+
+    all_collaborators = graphene.List(types.CollaboratorType, global_search=graphene.String())
+    collaborator = graphene.Field(
+        types.CollaboratorType, id=graphene.Int(required=True)
+    )
+
+    all_documents = graphene.List(types.DocumentType, global_search=graphene.String())
+    document = graphene.Field(types.DocumentType, id=graphene.Int(required=True))
+    documents_by_study_case = graphene.List(
+        types.DocumentType,
+        study_case_id=graphene.Int(required=True)
+    )
+
+    @login_required
     def resolve_current_user(self, info, username):
-        """
-        Obtiene el usuario actual por nombre de usuario.
-        """
-        return (
-            User.objects.get(username__iexact=username)
-        )
+        return models.User.objects.get(username__iexact=username)
+
+    @login_required
+    def resolve_all_users(root, info):
+        return models.User.objects.all()
+
+    @login_required
+    def resolve_all_study_cases(root, info, global_search=None):
+        if global_search:
+            return models.StudyCase.objects.filter(
+                Q(title__icontains=global_search)
+                | Q(description__icontains=global_search)
+            )
+        return models.StudyCase.objects.all()
+
+    @login_required
+    def resolve_study_case(root, info, id):
+        return models.StudyCase.objects.get(pk=id)
+
+    @login_required
+    def resolve_all_collaborators(root, info):
+        return models.Collaborator.objects.all()
+
+    @login_required
+    def resolve_collaborator(root, info, id):
+        return models.Collaborator.objects.get(pk=id)
+
+    @login_required
+    def resolve_all_documents(root, info):
+        return models.Document.objects.all()
     
-    def resolve_users(root, info):
-        """
-        Obtiene todos los usuarios.
-        """
-        return (
-            User.objects.all()
-        )
-    
-    def resolve_study_cases(root, info):
-        """
-        Obtiene todos los casos de estudio.
-        """
-        return (
-            models.StudyCase.objects.all()
-        )
+    @login_required
+    def resolve_documents_by_study_case(self, info, study_case_id, **kwargs):
+        return models.Document.objects.filter(study_case_id=study_case_id)
+
+    @login_required
+    def resolve_document(root, info, id):
+        return models.Document.objects.get(id=id)
+
+
+"""     def resolve_all_roles(root, info):
+        return models.Role.objects.all()
+
+    def resolve_role(root, info, role_id):
+        return models.Role.objects.get(pk=role_id)
+ """

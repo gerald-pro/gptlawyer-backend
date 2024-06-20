@@ -6,6 +6,7 @@ que contiene las definiciones de las consultas GraphQL disponibles.
 """
 
 import graphene
-from gptlawyer import queries, mutations
+from gptlawyer import queries
+from .mutations import Mutation
 
-schema = graphene.Schema(query=queries.Query, mutation=mutations.Mutation)
+schema = graphene.Schema(query=queries.Query, mutation=Mutation)

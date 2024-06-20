@@ -9,7 +9,7 @@ media/*
 __pycache__/
 *.py[cod]
 *$py.class
-
+gptlawyer/documents/*
 # C extensions
 *.so
 

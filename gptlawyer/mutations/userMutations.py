@@ -1,7 +1,8 @@
 import graphene
 import graphql_jwt
-from django.contrib.auth.models import User
-from gptlawyer import models, types
+from gptlawyer import types
+from gptlawyer import models
+
 
 class ObtainJSONWebToken(graphql_jwt.JSONWebTokenMutation):
     user = graphene.Field(types.UserType)
@@ -9,25 +10,28 @@ class ObtainJSONWebToken(graphql_jwt.JSONWebTokenMutation):
     @classmethod
     def resolve(cls, root, info, **kwargs):
         return cls(user=info.context.user)
+    
 
-
-class CreateUser(graphene.Mutation):
+class SignUp(graphene.Mutation):
     user = graphene.Field(types.UserType)
 
     class Arguments:
+        name = graphene.String(required=True)
         username = graphene.String(required=True)
         password = graphene.String(required=True)
         email = graphene.String(required=True)
 
-    def mutate(self, info, username, password, email):
-        user = User(
+
+    def mutate(self, info, name, username, password, email):
+        user = models.User(
             username=username,
             email=email,
+            name = name
         )
         user.set_password(password)
         user.save()
 
-        return CreateUser(user=user)
+        return SignUp(user=user)
 
 
 """ class UpdateUserProfile(graphene.Mutation):
@@ -57,8 +61,8 @@ class CreateUser(graphene.Mutation):
         return UpdateUserProfile(user=user) """
     
 
-class Mutation(graphene.ObjectType):
+class UserMutations(graphene.ObjectType):
     token_auth = ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()
-    create_user = CreateUser.Field()
+    sign_up = SignUp.Field()
