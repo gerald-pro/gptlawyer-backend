@@ -25,6 +25,7 @@ class User(AbstractUser):
 class StudyCase(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(null=True)
+    content = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Owner")
