@@ -5,6 +5,9 @@ from graphql_jwt.decorators import login_required
 from gptlawyer.mutations.utils import extract_text
 from django.db import transaction
 
+from gptlawyer.services.process import SPinecone
+from gptlawyer.services.chat import Chat
+
 class UploadDocument(graphene.Mutation):
     class Arguments:
         input = types.DocumentInput(required=True)
@@ -31,7 +34,6 @@ class UploadDocument(graphene.Mutation):
             document_instance.content_type, document_instance.file
         )
         document_instance.content = extracted_text
-
         document_instance.save()
 
         return UploadDocument(document=document_instance)
@@ -53,10 +55,13 @@ class UpdateDocument(graphene.Mutation):
                 doc_instance.name = input.name
             if input.content:
                 doc_instance.content = input.content
-
+            
             doc_instance.save()
+            updateEmbedding.update(doc_instance.study_case_id,doc_instance.content)
+            #updateEmbedding.query(doc_instance.study_case_id)
             return UpdateDocument(document=doc_instance)
         return UpdateDocument(studdocumenty_case=None)
+
 
 
 class DeleteDocument(graphene.Mutation):
@@ -79,3 +84,28 @@ class DocumentMutations(graphene.ObjectType):
     upload_document = UploadDocument.Field()
     update_document = UpdateDocument.Field()
     delete_document = DeleteDocument.Field()
+
+
+class updateEmbedding:
+    @staticmethod
+    def update(id,text):
+        index_name = "caso-"+str(id)
+        print(index_name)
+        SPinecone.txtToEmbedding(index_name,text)
+
+    @staticmethod
+    def query(id):
+        index_name = "caso-"+str(id)
+        chat =Chat(index_name)
+        content = chat.query("Numero, fecha, lugar, expediente  de auto supremo?")
+        content += "\n"+ chat.query(""""Nombres de Parte acusado o acusada y parte imputada o imputado?" respondeme en una lista.""")
+        content += "\n" + chat.query("""Tipo de delito o de que se trata el caso ?""")
+        print(content)
+        study_case_instance = models.StudyCase.objects.get(pk=id)
+        if study_case_instance:
+            if content:
+                study_case_instance.content = content
+
+            study_case_instance.save()
+
+    
