@@ -122,6 +122,7 @@ class ProcessStudyCase(graphene.Mutation):
             return DeleteStudyCase(success=True)
         return DeleteStudyCase(success=False)
     
+
 class MessageStudyCase(graphene.Mutation):
     class Arguments:
         id = graphene.ID(required=True)

@@ -10,7 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,8 +43,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "gptlawyer",
     "graphene_django",
-    'graphql_jwt',
-    "corsheaders"
+    "graphql_jwt",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -135,11 +139,11 @@ GRAPHENE = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'graphql_jwt.backends.JSONWebTokenBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
-AUTH_USER_MODEL = 'gptlawyer.User'
+AUTH_USER_MODEL = "gptlawyer.User"
 
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = ("http://localhost:5173",)
+CORS_ORIGIN_WHITELIST = (os.getenv("FRONTEND_URL"),)
