@@ -17,7 +17,10 @@ class StudyCaseType(DjangoObjectType):
     def resolve_number_of_collaborators(self, info):
         return self.get_number_of_collaborators()
 
-
+class MessageType(DjangoObjectType):
+    class Meta:
+        model = models.Message
+        
 class StudyCaseInput(graphene.InputObjectType):
     title = graphene.String(required=True)
     description = graphene.String()
@@ -69,3 +72,4 @@ class UpdateDocumentInput(graphene.InputObjectType):
     id = graphene.ID(required=True)
     name = graphene.String()
     content = graphene.String()
+

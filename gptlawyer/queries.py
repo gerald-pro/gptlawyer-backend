@@ -36,6 +36,8 @@ class Query(graphene.ObjectType):
         study_case_id=graphene.Int(required=True)
     )
 
+    all_messages = graphene.List(types.MessageType, study_id=graphene.Int(required=False))
+
     @login_required
     def resolve_current_user(self, info, username):
         return models.User.objects.get(username__iexact=username)
@@ -76,6 +78,12 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_document(root, info, id):
         return models.Document.objects.get(id=id)
+    
+    def resolve_all_messages(self, info, study_id=None, **kwargs):
+        if study_id is not None:
+            return models.Message.objects.filter(study_id=study_id)
+        return models.Message.objects.all()
+    
 
 
 """     def resolve_all_roles(root, info):

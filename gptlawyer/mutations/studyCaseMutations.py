@@ -77,7 +77,7 @@ class ProcessStudyCase(graphene.Mutation):
     success = graphene.Boolean()
 
     @staticmethod
-    #@login_required
+    @login_required
     def mutate(root, info, id):
         study_case_instance = models.StudyCase.objects.get(pk=id)
         if study_case_instance:
@@ -121,9 +121,37 @@ class ProcessStudyCase(graphene.Mutation):
             study_case_instance.save()
             return DeleteStudyCase(success=True)
         return DeleteStudyCase(success=False)
+    
+class MessageStudyCase(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        content = graphene.String(required=True)  # Corrected the type to String
+
+    success = graphene.Boolean()
+    res = graphene.String()
+
+    @staticmethod
+    #@login_required
+    def mutate(root, info, id, content):
+        index_name = "caso-" + str(id)
+        message_instance = models.Message(
+            study_id = id, content=content,type=1
+        )
+        message_instance.save()
+        # Process the query
+        chat = Chat(index_name)
+        res = chat.query(content)
+        message_instance = models.Message(
+            study_id = id, content=res,type=2
+        )
+        message_instance.save()
+        return MessageStudyCase(success=True, res=res)
+           
+            
 
 class StudyCaseMutations(graphene.ObjectType):
     create_study_case = CreateStudyCase.Field()
     update_study_case = UpdateStudyCase.Field()
     delete_study_case = DeleteStudyCase.Field()
     process_study_case = ProcessStudyCase.Field()
+    message_study_case = MessageStudyCase.Field()
