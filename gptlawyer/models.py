@@ -97,9 +97,12 @@ class Chat(models.Model):
 
 # Model for the messages table
 class Message(models.Model):
+    study_id = models.IntegerField(null=True, blank=True)
     content = models.TextField(null=True)
+    type = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    #chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    
 
     def __str__(self):
         return f'Message in {self.chat} at {self.created_at}'
